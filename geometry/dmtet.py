@@ -161,7 +161,7 @@ def sdf_reg_loss(sdf, all_edges):
 ###############################################################################
 
 class DMTetGeometry(torch.nn.Module):
-    def __init__(self, grid_res, scale, FLAGS):
+    def __init__(self, grid_res, scale, trans, FLAGS):
         super(DMTetGeometry, self).__init__()
 
         self.FLAGS         = FLAGS
@@ -169,7 +169,9 @@ class DMTetGeometry(torch.nn.Module):
         self.marching_tets = DMTet()
 
         tets = np.load('data/tets/{}_tets.npz'.format(self.grid_res))
-        self.verts    = torch.tensor(tets['vertices'], dtype=torch.float32, device='cuda') * scale
+        scale = torch.tensor([scale], device='cuda')
+        trans = torch.tensor([trans], device='cuda')
+        self.verts    = torch.tensor(tets['vertices'], dtype=torch.float32, device='cuda') * scale + trans
         self.indices  = torch.tensor(tets['indices'], dtype=torch.long, device='cuda')
         self.generate_edges()
 
