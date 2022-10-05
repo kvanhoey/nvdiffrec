@@ -192,7 +192,7 @@ def validate_itr(glctx, target, geometry, opt_material, lgt, FLAGS):
 
         result_dict['ref'] = util.rgb_to_srgb(target['img'][...,0:3])[0]
         result_dict['opt'] = util.rgb_to_srgb(buffers['shaded'][...,0:3])[0]
-        result_image = torch.cat([result_dict['opt'], result_dict['ref']], axis=1)
+        result_image = torch.cat([result_dict['ref'], result_dict['opt']], axis=1)
 
         if FLAGS.display is not None:
             white_bg = torch.ones_like(target['background'])
@@ -377,6 +377,7 @@ def optimize_mesh(
                 iterator = iter(iterable)
 
     v_it = cycle(dataloader_validate)
+    v_it = next(v_it)
 
     for it, target in enumerate(dataloader_train):
 
@@ -390,9 +391,9 @@ def optimize_mesh(
         # Show/save image before training step (want to get correct rendering of input)
         if FLAGS.local_rank == 0:
             display_image = FLAGS.display_interval and (it % FLAGS.display_interval == 0)
-            save_image = FLAGS.save_interval and (it % FLAGS.save_interval == 0)
+            save_image = FLAGS.save_interval and ((it < 100) or (it % FLAGS.save_interval == 0))
             if display_image or save_image:
-                result_image, result_dict = validate_itr(glctx, prepare_batch(next(v_it), FLAGS.background), geometry, opt_material, lgt, FLAGS)
+                result_image, result_dict = validate_itr(glctx, prepare_batch((v_it), FLAGS.background), geometry, opt_material, lgt, FLAGS)
                 np_result_image = result_image.detach().cpu().numpy()
                 if display_image:
                     util.display_image(np_result_image, title='%d / %d' % (it, FLAGS.iter))
@@ -501,6 +502,7 @@ if __name__ == "__main__":
     FLAGS.mtl_override        = None                     # Override material of model
     FLAGS.dmtet_grid          = 64                       # Resolution of initial tet grid. We provide 64 and 128 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
     FLAGS.mesh_scale          = 2.1                      # Scale of tet grid box. Adjust to cover the model
+    FLAGS.mesh_trans          = 0.0                      # Translation of tet grid box. Adjust to cover the model
     FLAGS.env_scale           = 1.0                      # Env map intensity multiplier
     FLAGS.envmap              = None                     # HDR environment probe
     FLAGS.display             = None                     # Conf validation window/display. E.g. [{"relight" : <path to envlight>}]
@@ -585,7 +587,7 @@ if __name__ == "__main__":
         # ==============================================================================================
 
         # Setup geometry for optimization
-        geometry = DMTetGeometry(FLAGS.dmtet_grid, FLAGS.mesh_scale, FLAGS)
+        geometry = DMTetGeometry(FLAGS.dmtet_grid, FLAGS.mesh_scale, FLAGS.mesh_trans, FLAGS)
 
         # Setup textures, make initial guess from reference if possible
         mat = initial_guess_material(geometry, True, FLAGS)
@@ -598,6 +600,7 @@ if __name__ == "__main__":
             validate(glctx, geometry, mat, lgt, dataset_validate, os.path.join(FLAGS.out_dir, "dmtet_validate"), FLAGS)
 
         # Create textured mesh from result
+        print("xatlas: create UV map")
         base_mesh = xatlas_uvmap(glctx, geometry, mat, FLAGS)
 
         # Free temporaries / cached memory 

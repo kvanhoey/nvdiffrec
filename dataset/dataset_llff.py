@@ -42,9 +42,22 @@ class DatasetLLFF(Dataset):
         self.base_dir = base_dir
         self.examples = examples
 
+        with open(os.path.join(base_dir,'view_imgs.txt'), 'r') as f:
+            lines = f.readlines()
+        images_to_keep = [os.path.splitext(os.path.basename(line[:-1]))[0] for line in lines]
+
         # Enumerate all image files and get resolution
         all_img = [f for f in sorted(glob.glob(os.path.join(self.base_dir, "images", "*"))) if f.lower().endswith('png') or f.lower().endswith('jpg') or f.lower().endswith('jpeg')]
+        all_img_filtered = [img for img in all_img if any(img_keep in img for img_keep in images_to_keep)]
+        self.all_img = all_img_filtered
         self.resolution = _load_img(all_img[0]).shape[0:2]
+
+        # Enumerate all masks
+        all_mask = [f for f in sorted(glob.glob(os.path.join(self.base_dir, "masks", "*"))) if f.lower().endswith('png') or f.lower().endswith('jpg') or f.lower().endswith('jpeg')]
+        all_mask_filtered = [mask for mask in all_mask if any(img_keep in mask for img_keep in images_to_keep)]
+        self.all_mask = all_mask_filtered
+
+        print("{} image files. {} mask files. {} to keep. Results: {} images and {} masks.".format(len(all_img),len(all_mask),len(images_to_keep),len(all_img_filtered),len(all_mask_filtered)))
 
         # Load camera poses
         poses_bounds = np.load(os.path.join(self.base_dir, 'poses_bounds.npy'))
@@ -58,12 +71,16 @@ class DatasetLLFF(Dataset):
         self.aspect  = self.resolution[1] / self.resolution[0] # width / height
         self.fovy    = util.focal_length_to_fovy(poses[:, 2, 4], poses[:, 0, 4])
 
+        H = poses[0, 0, 4]
+        W = poses[0, 1, 4]
+        self.aspect  = W / H
+
         # Recenter scene so lookat position is origin
         center                = util.lines_focal(self.imvs[..., :3, 3], -self.imvs[..., :3, 2])
         self.imvs[..., :3, 3] = self.imvs[..., :3, 3] - center[None, ...]
 
         if self.FLAGS.local_rank == 0:
-            print("DatasetLLFF: %d images with shape [%d, %d]" % (len(all_img), self.resolution[0], self.resolution[1]))
+            print("DatasetLLFF: %d images with shape [%d, %d]" % (len(self.all_img), self.resolution[0], self.resolution[1]))
             print("DatasetLLFF: auto-centering at %s" % (center.cpu().numpy()))
 
         # Pre-load from disc to avoid slow png parsing
@@ -73,13 +90,11 @@ class DatasetLLFF(Dataset):
                 self.preloaded_data += [self._parse_frame(i)]
 
     def _parse_frame(self, idx):
-        all_img  = [f for f in sorted(glob.glob(os.path.join(self.base_dir, "images", "*"))) if f.lower().endswith('png') or f.lower().endswith('jpg') or f.lower().endswith('jpeg')]
-        all_mask = [f for f in sorted(glob.glob(os.path.join(self.base_dir, "masks", "*"))) if f.lower().endswith('png') or f.lower().endswith('jpg') or f.lower().endswith('jpeg')]
-        assert len(all_img) == self.imvs.shape[0] and len(all_mask) == self.imvs.shape[0]
+        assert len(self.all_img) == self.imvs.shape[0] and len(self.all_mask) == self.imvs.shape[0]
 
         # Load image+mask data
-        img  = _load_img(all_img[idx])
-        mask = _load_mask(all_mask[idx])
+        img  = _load_img(self.all_img[idx])
+        mask = _load_mask(self.all_mask[idx])
         img  = torch.cat((img, mask[..., 0:1]), dim=-1)
 
         # Setup transforms
