@@ -379,6 +379,8 @@ def optimize_mesh(
     v_it = cycle(dataloader_validate)
     v_it = next(v_it)
 
+    logfile = open(FLAGS.out_dir + '/progress.txt', 'w')
+
     for it, target in enumerate(dataloader_train):
 
         # Mix randomized background into dataset image
@@ -465,8 +467,14 @@ def optimize_mesh(
             iter_dur_avg = np.mean(np.asarray(iter_dur_vec[-log_interval:]))
             
             remaining_time = (FLAGS.iter-it)*iter_dur_avg
+            logfile.write("iter=%5d, img_loss=%.6f, reg_loss=%.6f, lr=%.5f, time=%.1f ms\n" % 
+                (it, img_loss_avg, reg_loss_avg, optimizer.param_groups[0]['lr'], iter_dur_avg*1000))
+            logfile.flush()
+            
             print("iter=%5d, img_loss=%.6f, reg_loss=%.6f, lr=%.5f, time=%.1f ms, rem=%s" % 
                 (it, img_loss_avg, reg_loss_avg, optimizer.param_groups[0]['lr'], iter_dur_avg*1000, util.time_to_text(remaining_time)))
+
+    logfile.close()
 
     return geometry, opt_material
 
@@ -555,6 +563,7 @@ if __name__ == "__main__":
 
     os.makedirs(FLAGS.out_dir, exist_ok=True)
 
+    dr.set_log_level(0)
     glctx = dr.RasterizeGLContext()
 
     # ==============================================================================================
@@ -600,8 +609,9 @@ if __name__ == "__main__":
             validate(glctx, geometry, mat, lgt, dataset_validate, os.path.join(FLAGS.out_dir, "dmtet_validate"), FLAGS)
 
         # Create textured mesh from result
-        print("xatlas: create UV map")
+        print("xatlas: create UV map ...")
         base_mesh = xatlas_uvmap(glctx, geometry, mat, FLAGS)
+        print("Done")
 
         # Free temporaries / cached memory 
         torch.cuda.empty_cache()
@@ -614,8 +624,8 @@ if __name__ == "__main__":
         if FLAGS.local_rank == 0:
             # Dump mesh for debugging.
             os.makedirs(os.path.join(FLAGS.out_dir, "dmtet_mesh"), exist_ok=True)
-            obj.write_obj(os.path.join(FLAGS.out_dir, "dmtet_mesh/"), base_mesh)
             light.save_env_map(os.path.join(FLAGS.out_dir, "dmtet_mesh/probe.hdr"), lgt)
+            obj.write_obj(os.path.join(FLAGS.out_dir, "dmtet_mesh/"), base_mesh)
 
         # ==============================================================================================
         #  Pass 2: Train with fixed topology (mesh)
@@ -649,7 +659,7 @@ if __name__ == "__main__":
     if FLAGS.local_rank == 0:
         final_mesh = geometry.getMesh(mat)
         os.makedirs(os.path.join(FLAGS.out_dir, "mesh"), exist_ok=True)
-        obj.write_obj(os.path.join(FLAGS.out_dir, "mesh/"), final_mesh)
         light.save_env_map(os.path.join(FLAGS.out_dir, "mesh/probe.hdr"), lgt)
+        obj.write_obj(os.path.join(FLAGS.out_dir, "mesh/"), final_mesh)
 
 #----------------------------------------------------------------------------
