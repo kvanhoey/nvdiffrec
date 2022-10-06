@@ -12,7 +12,7 @@
     "ks_min" : [0, 1, 0],
     "ks_max" : [0, 1, 0],
     "dmtet_grid" : 128,
-    "mesh_scale" : [4.0,4.0,4.0],
+    "mesh_scale" : [4.0,4.0,10.0],
     "mesh_trans" : [0.0,0.0,0.0],
     "camera_space_light" : false,
     "background" : "white",
