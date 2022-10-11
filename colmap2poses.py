@@ -346,6 +346,12 @@ def load_save_pose(realdir):
     pts_arr = np.array(pts_arr)
     vis_arr = np.array(vis_arr)
     print( 'Points', pts_arr.shape, 'Visibility', vis_arr.shape)
+    pts_min = pts_arr.min(0)
+    pts_max = pts_arr.max(0)
+    bbox = pts_max - pts_min
+    print('Point Min=', pts_min, "Max=", pts_max)
+    print("\tScale  = {}".format(bbox))
+    print("\tCenter = {}".format(pts_min + (bbox / 2), "Scale=", bbox))
     zvals = np.sum(-(pts_arr[:, np.newaxis, :].transpose([2,0,1]) - poses[:3, 3:4, :]) * poses[:3, 2:3, :], 0)
     valid_z = zvals[vis_arr==1]
     print( 'Depth stats', valid_z.min(), valid_z.max(), valid_z.mean() )
