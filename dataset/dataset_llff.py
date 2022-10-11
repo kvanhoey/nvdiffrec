@@ -77,11 +77,13 @@ class DatasetLLFF(Dataset):
 
         # Recenter scene so lookat position is origin
         center                = util.lines_focal(self.imvs[..., :3, 3], -self.imvs[..., :3, 2])
-        self.imvs[..., :3, 3] = self.imvs[..., :3, 3] - center[None, ...]
+        if self.FLAGS.mesh_trans is not None:
+            self.imvs[..., :3, 3] = self.imvs[..., :3, 3] - center[None, ...]
 
         if self.FLAGS.local_rank == 0:
             print("DatasetLLFF: %d images with shape [%d, %d]" % (len(self.all_img), self.resolution[0], self.resolution[1]))
-            print("DatasetLLFF: auto-centering at %s" % (center.cpu().numpy()))
+            if self.FLAGS.mesh_trans is not None:
+                print("DatasetLLFF: auto-centering at %s" % (center.cpu().numpy()))
 
         # Pre-load from disc to avoid slow png parsing
         if self.FLAGS.pre_load:

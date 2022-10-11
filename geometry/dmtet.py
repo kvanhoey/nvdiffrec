@@ -170,8 +170,10 @@ class DMTetGeometry(torch.nn.Module):
 
         tets = np.load('data/tets/{}_tets.npz'.format(self.grid_res))
         scale = torch.tensor([scale], device='cuda')
-        trans = torch.tensor([trans], device='cuda')
-        self.verts    = torch.tensor(tets['vertices'], dtype=torch.float32, device='cuda') * scale + trans
+        self.verts    = torch.tensor(tets['vertices'], dtype=torch.float32, device='cuda') * scale 
+        if trans is not None:
+            self.verts += torch.tensor([trans], device='cuda')
+        
         self.indices  = torch.tensor(tets['indices'], dtype=torch.long, device='cuda')
         self.generate_edges()
 

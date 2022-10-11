@@ -510,7 +510,7 @@ if __name__ == "__main__":
     FLAGS.mtl_override        = None                     # Override material of model
     FLAGS.dmtet_grid          = 64                       # Resolution of initial tet grid. We provide 64 and 128 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
     FLAGS.mesh_scale          = 2.1                      # Scale of tet grid box. Adjust to cover the model
-    FLAGS.mesh_trans          = 0.0                      # Translation of tet grid box. Adjust to cover the model
+    FLAGS.mesh_trans          = None                     # Translation of tet grid box. Adjust to cover the model
     FLAGS.env_scale           = 1.0                      # Env map intensity multiplier
     FLAGS.envmap              = None                     # HDR environment probe
     FLAGS.display             = None                     # Conf validation window/display. E.g. [{"relight" : <path to envlight>}]
@@ -596,7 +596,7 @@ if __name__ == "__main__":
         # ==============================================================================================
 
         # Setup geometry for optimization
-        geometry = DMTetGeometry(FLAGS.dmtet_grid, FLAGS.mesh_scale, FLAGS.mesh_trans, FLAGS)
+        geometry = DMTetGeometry(FLAGS.dmtet_grid, FLAGS.mesh_scale * 1.05, FLAGS.mesh_trans, FLAGS)
 
         # Setup textures, make initial guess from reference if possible
         mat = initial_guess_material(geometry, True, FLAGS)
