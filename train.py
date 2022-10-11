@@ -596,7 +596,7 @@ if __name__ == "__main__":
         # ==============================================================================================
 
         # Setup geometry for optimization
-        geometry = DMTetGeometry(FLAGS.dmtet_grid, FLAGS.mesh_scale * 1.05, FLAGS.mesh_trans, FLAGS)
+        geometry = DMTetGeometry(FLAGS.dmtet_grid, FLAGS.mesh_scale, FLAGS.mesh_trans, FLAGS)
 
         # Setup textures, make initial guess from reference if possible
         mat = initial_guess_material(geometry, True, FLAGS)

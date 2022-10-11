@@ -169,7 +169,7 @@ class DMTetGeometry(torch.nn.Module):
         self.marching_tets = DMTet()
 
         tets = np.load('data/tets/{}_tets.npz'.format(self.grid_res))
-        scale = torch.tensor([scale], device='cuda')
+        scale = torch.tensor([scale], device='cuda') * 1.05 # safety margin
         self.verts    = torch.tensor(tets['vertices'], dtype=torch.float32, device='cuda') * scale 
         if trans is not None:
             self.verts += torch.tensor([trans], device='cuda')
