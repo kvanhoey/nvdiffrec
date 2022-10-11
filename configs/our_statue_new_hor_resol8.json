@@ -1,5 +1,5 @@
 {
-    "ref_mesh": "data/ours/statue_new_rescaled8",
+    "ref_mesh": "data/ours/statue_vert_masked/statue_hor_masked_rescaled8/",
     "random_textures": true,
     "iter": 5000,
     "save_interval": 100,
@@ -12,8 +12,8 @@
     "ks_min" : [0, 0.08, 0],
     "ks_max" : [0, 1.0, 1.0],
     "dmtet_grid" : 128,
-    "mesh_scale" : [3.5,3.5,3.5],
-    "mesh_trans" : [0.0,0.0,0.0],
+    "mesh_scale" : [4.28733181, 9.34517045, 3.61309401],
+    "mesh_trans" : [ 0.33839199, -1.48749073,  1.23198189],
     "camera_space_light" : false,
     "background" : "white",
     "display" : [{"bsdf":"kd"}, {"bsdf":"ks"}, {"bsdf" : "normal"}],
