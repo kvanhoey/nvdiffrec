@@ -100,22 +100,25 @@ def load_mtl(fn, clear_ks=True):
 
 @torch.no_grad()
 def create_ks_texture(tex):
-    H, W, C = tex.shape
+    # tex contains 3 channels: Null, roughness, metalness.
     print(tex.shape)
+    
+    H, W, C = tex.shape
     ks = torch.zeros([H, W, 4], dtype=tex.dtype, device=tex.device)
     
     # Red: metallic
-    ks[...,3] = tex[..., 1]
+    ks[...,0] = tex[..., 2]
 
     # Green: Occlusion (0)
     # ks[...,1] = 0
      
     # Blue: Detail mask (1)
-    ks[...,2] = 1
+    ks[...,2] = 1.0
 
-    # Alpha: Smoothness
-    ks[...,3] = tex[..., 0]
-    return tex
+    # Alpha: Smoothness (1-roughness)
+    ks[...,3] = 1.0 - tex[..., 1]
+
+    return ks
     
 
 @torch.no_grad()
