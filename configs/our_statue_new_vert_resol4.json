@@ -19,5 +19,5 @@
     "background" : "white",
     "display" : [{"bsdf":"kd"}, {"bsdf":"ks"}, {"bsdf" : "normal"}],
     "out_dir": "statue_vert_masked_rescaled4",
-    "validate": false,
+    "validate": false
 }
