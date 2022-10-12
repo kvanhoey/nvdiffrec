@@ -1,11 +1,11 @@
 {
-    "ref_mesh": "data/ours/statue_vert_masked/statue_hor_masked_rescaled4/",
+    "ref_mesh": "data/ours/statue_hor_masked/statue_new_rescaled4/",
     "random_textures": true,
     "iter": 5000,
     "save_interval": 100,
     "texture_res": [ 2048, 2048 ],
     "train_res": [915, 1422],
-    "batch": 2,
+    "batch": 4,
     "learning_rate": [0.03, 0.03],
     "kd_min" : [0.03, 0.03, 0.03],
     "kd_max" : [0.8, 0.8, 0.8],
