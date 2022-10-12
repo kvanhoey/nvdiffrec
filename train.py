@@ -382,7 +382,7 @@ def optimize_mesh(
 #        v_it = next(v_it)
 #        i += 1
 
-    logfile = open(FLAGS.out_dir + '/progress.txt', 'w')
+    logfile = open(FLAGS.out_dir + '/progress.txt', 'w' if pass_idx==0 else 'a')
 
     for it, target in enumerate(dataloader_train):
 
