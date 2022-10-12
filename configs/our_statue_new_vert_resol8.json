@@ -3,6 +3,7 @@
     "random_textures": true,
     "iter": 5000,
     "save_interval": 100,
+    "shuffle_export": false,
     "texture_res": [ 2048, 2048 ],
     "train_res": [711, 458],
     "batch": 6,

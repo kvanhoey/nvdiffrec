@@ -377,6 +377,8 @@ def optimize_mesh(
                 iterator = iter(iterable)
 
     v_it = cycle(dataloader_validate)
+    if not FLAGS.shuffle_export:
+        v_it = next(v_it)
 #    i = 0
 #    while (i < 43):
 #        v_it = next(v_it)
@@ -398,7 +400,9 @@ def optimize_mesh(
             display_image = FLAGS.display_interval and (it % FLAGS.display_interval == 0)
             save_image = FLAGS.save_interval and ((it < 100) or (it % FLAGS.save_interval == 0))
             if display_image or save_image:
-                result_image, result_dict = validate_itr(glctx, prepare_batch(next(v_it), FLAGS.background), geometry, opt_material, lgt, FLAGS)
+                if FLAGS.shuffle_export:
+                    v_it = next(v_it)
+                result_image, result_dict = validate_itr(glctx, prepare_batch(v_it, FLAGS.background), geometry, opt_material, lgt, FLAGS)
                 np_result_image = result_image.detach().cpu().numpy()
                 if display_image:
                     util.display_image(np_result_image, title='%d / %d' % (it, FLAGS.iter))
@@ -497,6 +501,7 @@ if __name__ == "__main__":
     parser.add_argument('-tr', '--texture-res', nargs=2, type=int, default=[1024, 1024])
     parser.add_argument('-di', '--display-interval', type=int, default=0)
     parser.add_argument('-si', '--save-interval', type=int, default=1000)
+    parser.add_argument('-se', '--shuffle-export', type=bool, default=True)
     parser.add_argument('-lr', '--learning-rate', type=float, default=0.01)
     parser.add_argument('-mr', '--min-roughness', type=float, default=0.08)
     parser.add_argument('-mip', '--custom-mip', action='store_true', default=False)
