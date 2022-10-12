@@ -99,6 +99,26 @@ def load_mtl(fn, clear_ks=True):
     return materials
 
 @torch.no_grad()
+def create_ks_texture(tex):
+    H, W, C = tex.shape
+    print(tex.shape)
+    ks = torch.zeros([H, W, 4], dtype=tex.dtype, device=tex.device)
+    
+    # Red: metallic
+    ks[...,3] = tex[..., 1]
+
+    # Green: Occlusion (0)
+    # ks[...,1] = 0
+     
+    # Blue: Detail mask (1)
+    ks[...,2] = 1
+
+    # Alpha: Smoothness
+    ks[...,3] = tex[..., 0]
+    return tex
+    
+
+@torch.no_grad()
 def save_mtl(fn, material):
     folder = os.path.dirname(fn)
     with open(fn, "w") as f:
@@ -110,7 +130,7 @@ def save_mtl(fn, material):
                 texture.save_texture2D(os.path.join(folder, 'texture_kd.png'), texture.rgb_to_srgb(material['kd']))
             if 'ks' in material.keys():
                 f.write('map_Ks texture_ks.png\n')
-                texture.save_texture2D(os.path.join(folder, 'texture_ks.png'), material['ks'])
+                texture.save_texture2D(os.path.join(folder, 'texture_ks.png'), material['ks'], create_ks_texture)
             if 'normal' in material.keys():
                 f.write('bump texture_n.png\n')
                 texture.save_texture2D(os.path.join(folder, 'texture_n.png'), material['normal'], lambda_fn=lambda x:(util.safe_normalize(x)+1)*0.5)
