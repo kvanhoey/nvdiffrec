@@ -377,7 +377,10 @@ def optimize_mesh(
                 iterator = iter(iterable)
 
     v_it = cycle(dataloader_validate)
-    v_it = next(v_it)
+#    i = 0
+#    while (i < 43):
+#        v_it = next(v_it)
+#        i += 1
 
     logfile = open(FLAGS.out_dir + '/progress.txt', 'w')
 
@@ -395,7 +398,7 @@ def optimize_mesh(
             display_image = FLAGS.display_interval and (it % FLAGS.display_interval == 0)
             save_image = FLAGS.save_interval and ((it < 100) or (it % FLAGS.save_interval == 0))
             if display_image or save_image:
-                result_image, result_dict = validate_itr(glctx, prepare_batch((v_it), FLAGS.background), geometry, opt_material, lgt, FLAGS)
+                result_image, result_dict = validate_itr(glctx, prepare_batch(next(v_it), FLAGS.background), geometry, opt_material, lgt, FLAGS)
                 np_result_image = result_image.detach().cpu().numpy()
                 if display_image:
                     util.display_image(np_result_image, title='%d / %d' % (it, FLAGS.iter))
