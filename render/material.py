@@ -109,11 +109,11 @@ def create_ks_texture(tex):
     # Red: metallic
     ks[...,0] = tex[..., 2]
 
-    # Green: Occlusion (0)
-    # ks[...,1] = 0
+    # Green: Ambiant Occlusion (1=no occlusion)
+    ks[...,1] = 1.0
      
-    # Blue: Detail mask (1)
-    ks[...,2] = 1.0
+    # Blue: Detail mask (0= no detail)
+    #ks[...,2] = 0.0
 
     # Alpha: Smoothness (1-roughness)
     ks[...,3] = 1.0 - tex[..., 1]
