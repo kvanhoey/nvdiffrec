@@ -420,10 +420,10 @@ def display_image(image, title=None):
 
 def save_image(fn, x : np.ndarray):
     try:
-        if os.path.splitext(fn)[1] == ".png":
-            imageio.imwrite(fn, np.clip(np.rint(x * 255.0), 0, 255).astype(np.uint8), compress_level=3) # Low compression for faster saving
-        else:
-            imageio.imwrite(fn, np.clip(np.rint(x * 255.0), 0, 255).astype(np.uint8))
+        # if os.path.splitext(fn)[1] == ".png":
+        #     imageio.imwrite(fn, np.clip(np.rint(x * 255.0), 0, 255).astype(np.uint8), compress_level=3) # Low compression for faster saving
+        # else:
+        imageio.imwrite(fn, np.clip(np.rint(x * 255.0), 0, 255).astype(np.uint8))
     except:
         print("WARNING: FAILED to save image %s" % fn)
 
