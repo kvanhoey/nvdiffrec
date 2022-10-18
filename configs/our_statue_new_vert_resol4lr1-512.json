@@ -6,7 +6,7 @@
     "shuffle_export": false,
     "texture_res": [ 2048, 2048 ],
     "train_res": [1422, 915],
-    "batch": 4,
+    "batch": 2,
     "learning_rate": [0.02, 0.003],
     "kd_min" : [0.03, 0.03, 0.03],
     "kd_max" : [0.8, 0.8, 0.8],
