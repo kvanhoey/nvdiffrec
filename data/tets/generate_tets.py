@@ -21,7 +21,7 @@ to generate a tet grid
 def generate_tetrahedron_grid_file(res=32, root='..'):
     frac = 1.0 / res
     command = 'cd %s/quartet; ' % (root) + \
-                './quartet meshes/cube.obj %f meshes/cube_%f_tet.tet -s meshes/cube_boundary_%f.obj' % (frac, res, res)
+                './quartet meshes/cube.obj %f meshes/cube_%d_tet.tet -s meshes/cube_boundary_%d.obj' % (frac, res, res)
     os.system(command)
 
 
