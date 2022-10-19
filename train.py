@@ -16,6 +16,7 @@ import numpy as np
 import torch
 import nvdiffrast.torch as dr
 import xatlas
+from torch.utils.tensorboard import SummaryWriter
 
 # Import data readers / generators
 from dataset.dataset_mesh import DatasetMesh
@@ -358,6 +359,11 @@ def optimize_mesh(
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda x: lr_schedule(x, 0.9)) 
 
     # ==============================================================================================
+    #  Logger
+    # ==============================================================================================
+    writer = SummaryWriter(log_dir=FLAGS.out_dir)
+
+    # ==============================================================================================
     #  Training loop
     # ==============================================================================================
     img_cnt = 0
@@ -409,6 +415,7 @@ def optimize_mesh(
                     util.display_image(np_result_image, title='%d / %d' % (it, FLAGS.iter))
                 if save_image:
                     util.save_image(FLAGS.out_dir + '/' + ('img_%s_%06d.png' % (pass_name, img_cnt)), np_result_image)
+                    writer.add_image('stage{}'.format(pass_idx+1),np.moveaxis(np_result_image,-1,0), it)
                     img_cnt = img_cnt+1
 
         iter_start_time = time.time()
@@ -482,7 +489,11 @@ def optimize_mesh(
             print("iter=%5d, img_loss=%.6f, reg_loss=%.6f, lr=%.5f, time=%.1f ms, rem=%s" % 
                 (it, img_loss_avg, reg_loss_avg, optimizer.param_groups[0]['lr'], iter_dur_avg*1000, util.time_to_text(remaining_time)))
 
+            writer.add_scalar('Loss/stage{}_img_loss'.format(pass_idx+1),      img_loss_avg,   it)
+            writer.add_scalar('Loss/stage{}_reg_loss_avg'.format(pass_idx+1),  img_loss_avg,   it)
+
     logfile.close()
+    writer.close()
 
     return geometry, opt_material
 

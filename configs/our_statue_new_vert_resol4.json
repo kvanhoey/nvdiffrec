@@ -12,12 +12,12 @@
     "kd_max" : [0.8, 0.8, 0.8],
     "ks_min" : [0, 0.08, 0],
     "ks_max" : [0, 1.0, 1.0],
-    "dmtet_grid" : 256,
+    "dmtet_grid" : 128,
     "mesh_scale" : [1.70644427, 3.54787809, 1.41422018],
     "mesh_trans" : [ 0.423718,  -0.23550611,  0.40257075],
     "camera_space_light" : false,
     "background" : "white",
     "display" : [{"bsdf":"kd"}, {"bsdf":"ks"}, {"bsdf" : "normal"}],
-    "out_dir": "statue_vert_masked_rescaled4lr1-256",
+    "out_dir": "statue_vert_masked_rescaled4test",
     "validate": false
 }
