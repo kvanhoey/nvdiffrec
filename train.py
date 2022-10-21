@@ -490,7 +490,7 @@ def optimize_mesh(
                 (it, img_loss_avg, reg_loss_avg, optimizer.param_groups[0]['lr'], iter_dur_avg*1000, util.time_to_text(remaining_time)))
 
             writer.add_scalar('Loss/stage{}_img_loss'.format(pass_idx+1),      img_loss_avg,   it)
-            writer.add_scalar('Loss/stage{}_reg_loss_avg'.format(pass_idx+1),  img_loss_avg,   it)
+            writer.add_scalar('Loss/stage{}_reg_loss_avg'.format(pass_idx+1),  reg_loss_avg,   it)
 
     logfile.close()
     writer.close()
