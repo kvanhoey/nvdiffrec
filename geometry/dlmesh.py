@@ -65,13 +65,14 @@ class DLMesh(torch.nn.Module):
         img_loss = torch.nn.functional.mse_loss(buffers['shaded'][..., 3:], color_ref[..., 3:]) 
         img_loss += loss_fn(buffers['shaded'][..., 0:3] * color_ref[..., 3:], color_ref[..., 0:3] * color_ref[..., 3:])
 
-        reg_loss = torch.tensor([0], dtype=torch.float32, device="cuda")
+        reg_loss_geom = torch.tensor([0], dtype=torch.float32, device="cuda")
 
         # Compute regularizer. 
         if self.FLAGS.laplace == "absolute":
-            reg_loss += regularizer.laplace_regularizer_const(self.mesh.v_pos, self.mesh.t_pos_idx) * self.FLAGS.laplace_scale * (1 - t_iter)
+            reg_loss_geom += regularizer.laplace_regularizer_const(self.mesh.v_pos, self.mesh.t_pos_idx) * self.FLAGS.laplace_scale * (1 - t_iter)
         elif self.FLAGS.laplace == "relative":
-            reg_loss += regularizer.laplace_regularizer_const(self.mesh.v_pos - self.initial_guess.v_pos, self.mesh.t_pos_idx) * self.FLAGS.laplace_scale * (1 - t_iter)                
+            reg_loss_geom += regularizer.laplace_regularizer_const(self.mesh.v_pos - self.initial_guess.v_pos, self.mesh.t_pos_idx) * self.FLAGS.laplace_scale * (1 - t_iter)                
+        reg_loss = reg_loss_geom
 
         # Albedo (k_d) smoothnesss regularizer
         reg_loss += torch.mean(buffers['kd_grad'][..., :-1] * buffers['kd_grad'][..., -1:]) * 0.03 * min(1.0, iteration / 500)
@@ -82,4 +83,4 @@ class DLMesh(torch.nn.Module):
         # Light white balance regularizer
         reg_loss = reg_loss + lgt.regularizer() * 0.005
 
-        return img_loss, reg_loss
+        return img_loss, reg_loss, reg_loss_geom

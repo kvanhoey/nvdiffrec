@@ -371,6 +371,7 @@ def optimize_mesh(
     img_loss_vec = []
     reg_loss_vec = []
     iter_dur_vec = []
+    reg_loss_geom_vec = []
 
     dataloader_train    = torch.utils.data.DataLoader(dataset_train, batch_size=FLAGS.batch, collate_fn=dataset_train.collate, shuffle=True)
     dataloader_validate = torch.utils.data.DataLoader(dataset_validate, batch_size=1, collate_fn=dataset_train.collate)
@@ -431,7 +432,7 @@ def optimize_mesh(
         # ==============================================================================================
         #  Training
         # ==============================================================================================
-        img_loss, reg_loss = trainer(target, it)
+        img_loss, reg_loss, reg_loss_geom = trainer(target, it)
 
         # ==============================================================================================
         #  Final loss
@@ -440,6 +441,7 @@ def optimize_mesh(
 
         img_loss_vec.append(img_loss.item())
         reg_loss_vec.append(reg_loss.item())
+        reg_loss_geom_vec.append(reg_loss_geom.item())
 
         # ==============================================================================================
         #  Backpropagate
@@ -480,6 +482,7 @@ def optimize_mesh(
         if it % log_interval == 0 and FLAGS.local_rank == 0:
             img_loss_avg = np.mean(np.asarray(img_loss_vec[-log_interval:]))
             reg_loss_avg = np.mean(np.asarray(reg_loss_vec[-log_interval:]))
+            reg_loss_geom_avg = np.mean(np.asarray(reg_loss_geom_vec[-log_interval:]))
             iter_dur_avg = np.mean(np.asarray(iter_dur_vec[-log_interval:]))
             
             remaining_time = (FLAGS.iter-it)*iter_dur_avg
@@ -492,9 +495,11 @@ def optimize_mesh(
 
             writer.add_scalar('LR/stage{}_mat'.format(pass_idx+1),  optimizer.param_groups[0]['lr'], it)
             if optimize_geometry:
-                writer.add_scalar('LR/stage{}_mesh'.format(pass_idx+1), optimizer_mesh.param_groups[0]['lr'], it)
-            writer.add_scalar('Loss/stage{}_img_loss'.format(pass_idx+1),      img_loss_avg,   it)
-            writer.add_scalar('Loss/stage{}_reg_loss_avg'.format(pass_idx+1),  reg_loss_avg,   it)
+                writer.add_scalar(  'LR/stage{}_mesh'.format(pass_idx+1),               optimizer_mesh.param_groups[0]['lr'],   it)
+            writer.add_scalar(      'Loss/stage{}_img_loss'.format(pass_idx+1),         img_loss_avg,                           it)
+            writer.add_scalar(      'Loss/stage{}_reg_loss_avg'.format(pass_idx+1),     reg_loss_avg,                           it)
+            writer.add_scalar(      'Loss/stage{}_reg_loss_geom_avg'.format(pass_idx+1),reg_loss_geom_avg,                      it)
+            
 
     logfile.close()
     writer.close()

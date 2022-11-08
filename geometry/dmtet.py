@@ -234,7 +234,8 @@ class DMTetGeometry(torch.nn.Module):
 
         # SDF regularizer
         sdf_weight = self.FLAGS.sdf_regularizer - (self.FLAGS.sdf_regularizer - 0.01)*min(1.0, 4.0 * t_iter)
-        reg_loss = sdf_reg_loss(self.sdf, self.all_edges).mean() * sdf_weight # Dropoff to 0.01
+        reg_loss_geom = sdf_reg_loss(self.sdf, self.all_edges).mean()
+        reg_loss = reg_loss_geom * sdf_weight # Dropoff to 0.01
 
         # Albedo (k_d) smoothnesss regularizer
         reg_loss += torch.mean(buffers['kd_grad'][..., :-1] * buffers['kd_grad'][..., -1:]) * 0.03 * min(1.0, iteration / 500)
@@ -245,5 +246,5 @@ class DMTetGeometry(torch.nn.Module):
         # Light white balance regularizer
         reg_loss = reg_loss + lgt.regularizer() * 0.005
 
-        return img_loss, reg_loss
+        return img_loss, reg_loss, reg_loss_geom
 
