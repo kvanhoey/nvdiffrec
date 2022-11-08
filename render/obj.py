@@ -51,7 +51,7 @@ def load_obj(filename, clear_ks=True, mtl_override=None):
             if line.split()[0] == 'mtllib':
                 all_materials += material.load_mtl(os.path.join(obj_path, line.split()[1]), clear_ks) # Read in entire material library
     else:
-        all_materials += material.load_mtl(mtl_override)
+        all_materials += material.load_mtl(mtl_override, clear_ks)
 
     # load vertices
     vertices, texcoords, normals  = [], [], []
@@ -109,7 +109,7 @@ def load_obj(filename, clear_ks=True, mtl_override=None):
         uber_material, texcoords, tfaces = material.merge_materials(used_materials, texcoords, tfaces, mfaces)
     else:
         uber_material = used_materials[0]
-
+    
     vertices = torch.tensor(vertices, dtype=torch.float32, device='cuda')
     texcoords = torch.tensor(texcoords, dtype=torch.float32, device='cuda') if len(texcoords) > 0 else None
     normals = torch.tensor(normals, dtype=torch.float32, device='cuda') if len(normals) > 0 else None

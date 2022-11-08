@@ -76,10 +76,10 @@ class Mesh:
 # Mesh loeading helper
 ######################################################################################
 
-def load_mesh(filename, mtl_override=None):
+def load_mesh(filename, mtl_override=None, clear_ks=True):
     name, ext = os.path.splitext(filename)
     if ext == ".obj":
-        return obj.load_obj(filename, clear_ks=True, mtl_override=mtl_override)
+        return obj.load_obj(filename, clear_ks=clear_ks, mtl_override=mtl_override)
     assert False, "Invalid mesh file extension"
 
 ######################################################################################

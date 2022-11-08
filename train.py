@@ -323,10 +323,11 @@ def optimize_mesh(
     learning_rate_pos = learning_rate[0] if isinstance(learning_rate, list) or isinstance(learning_rate, tuple) else learning_rate
     learning_rate_mat = learning_rate[1] if isinstance(learning_rate, list) or isinstance(learning_rate, tuple) else learning_rate
 
-    def lr_schedule(iter, fraction):
+    def lr_schedule(iter):
         if iter < warmup_iter:
             return iter / warmup_iter 
-        return max(0.0, 10**(-(iter - warmup_iter)*0.0002)) # Exponential falloff from [1.0, 0.1] over 5k epochs.    
+#        return max(0.0, 10**(-(iter - warmup_iter)*0.0002)) # Exponential falloff from [1.0, 0.1] over 5k epochs.    
+        return max(0.0, 10**(-(iter - warmup_iter)/(1.0 * FLAGS.iter))) # Exponential falloff from [1.0, 0.1] over FLAGS.iter epochs.    
 
     # ==============================================================================================
     #  Image loss
@@ -344,19 +345,19 @@ def optimize_mesh(
         trainer.train()
         if optimize_geometry:
             optimizer_mesh = apex.optimizers.FusedAdam(trainer_noddp.geo_params, lr=learning_rate_pos)
-            scheduler_mesh = torch.optim.lr_scheduler.LambdaLR(optimizer_mesh, lr_lambda=lambda x: lr_schedule(x, 0.9)) 
+            scheduler_mesh = torch.optim.lr_scheduler.LambdaLR(optimizer_mesh, lr_lambda=lambda x: lr_schedule(x)) 
 
         optimizer = apex.optimizers.FusedAdam(trainer_noddp.params, lr=learning_rate_mat)
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda x: lr_schedule(x, 0.9)) 
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda x: lr_schedule(x)) 
     else:
         # Single GPU training mode
         trainer = trainer_noddp
         if optimize_geometry:
             optimizer_mesh = torch.optim.Adam(trainer_noddp.geo_params, lr=learning_rate_pos)
-            scheduler_mesh = torch.optim.lr_scheduler.LambdaLR(optimizer_mesh, lr_lambda=lambda x: lr_schedule(x, 0.9)) 
+            scheduler_mesh = torch.optim.lr_scheduler.LambdaLR(optimizer_mesh, lr_lambda=lambda x: lr_schedule(x)) 
 
         optimizer = torch.optim.Adam(trainer_noddp.params, lr=learning_rate_mat)
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda x: lr_schedule(x, 0.9)) 
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda x: lr_schedule(x)) 
 
     # ==============================================================================================
     #  Logger
@@ -489,6 +490,9 @@ def optimize_mesh(
             print("iter=%5d, img_loss=%.6f, reg_loss=%.6f, lr=%.5f, time=%.1f ms, rem=%s" % 
                 (it, img_loss_avg, reg_loss_avg, optimizer.param_groups[0]['lr'], iter_dur_avg*1000, util.time_to_text(remaining_time)))
 
+            writer.add_scalar('LR/stage{}_mat'.format(pass_idx+1),  optimizer.param_groups[0]['lr'], it)
+            if optimize_geometry:
+                writer.add_scalar('LR/stage{}_mesh'.format(pass_idx+1), optimizer_mesh.param_groups[0]['lr'], it)
             writer.add_scalar('Loss/stage{}_img_loss'.format(pass_idx+1),      img_loss_avg,   it)
             writer.add_scalar('Loss/stage{}_reg_loss_avg'.format(pass_idx+1),  reg_loss_avg,   it)
 
@@ -528,7 +532,7 @@ if __name__ == "__main__":
     FLAGS = parser.parse_args()
 
     FLAGS.mtl_override        = None                     # Override material of model
-    FLAGS.dmtet_grid          = 64                       # Resolution of initial tet grid. We provide 64 and 128 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
+    FLAGS.dmtet_grid          = 128                      # Resolution of initial tet grid. We provide 64 and 128 resolution grids. Other resolutions can be generated with https://github.com/crawforddoran/quartet
     FLAGS.mesh_scale          = 2.1                      # Scale of tet grid box. Adjust to cover the model
     FLAGS.mesh_trans          = None                     # Translation of tet grid box. Adjust to cover the model
     FLAGS.env_scale           = 1.0                      # Env map intensity multiplier
@@ -659,12 +663,14 @@ if __name__ == "__main__":
         # ==============================================================================================
 
         # Load initial guess mesh from file
-        base_mesh = mesh.load_mesh(FLAGS.base_mesh)
+        #base_mesh = mesh.load_mesh(FLAGS.base_mesh)
+        base_mesh = mesh.load_mesh(FLAGS.base_mesh, FLAGS.mtl_override)
         geometry = DLMesh(base_mesh, FLAGS)
         
         mat = initial_guess_material(geometry, False, FLAGS, init_mat=base_mesh.material)
+        
 
-        geometry, mat = optimize_mesh(glctx, geometry, mat, lgt, dataset_train, dataset_validate, FLAGS, pass_idx=0, pass_name="mesh_pass", 
+        geometry, mat = optimize_mesh(glctx, geometry, mat, lgt, dataset_train, dataset_validate, FLAGS, pass_idx=1, pass_name="mesh_pass", 
                                         warmup_iter=100, optimize_light=not FLAGS.lock_light, optimize_geometry=not FLAGS.lock_pos)
 
     # ==============================================================================================

@@ -1,13 +1,12 @@
 {
     "ref_mesh": "data/ours/statue_vert_masked/statue_vert_masked_rescaled4/",
-    "random_textures": true,
-    "iter": 5000,
+    "iter": 20000,
     "save_interval": 100,
     "shuffle_export": false,
     "texture_res": [ 2048, 2048 ],
     "train_res": [1422, 915],
     "batch": 4,
-    "learning_rate": [0.03, 0.005],
+    "learning_rate": [0.01, 0.02],
     "kd_min" : [0.03, 0.03, 0.03],
     "kd_max" : [0.8, 0.8, 0.8],
     "ks_min" : [0, 0.08, 0],
@@ -17,8 +16,9 @@
     "camera_space_light" : false,
     "background" : "white",
     "display" : [{"bsdf":"kd"}, {"bsdf":"ks"}, {"bsdf" : "normal"}],
-    "out_dir": "statue_vert_masked_test",
+    "out_dir": "statue_vert_masked_stage2-lr0",
     "validate": false,
-    "base_mesh": "data/ours/statue_vert_masked/statue_vert_masked/dense/base_mesh_uv.obj",
+    "base_mesh": "out/statue_vert_masked_rescaled4lr1-128/dmtet_mesh/mesh.obj",
+    "mtl_override": "out/statue_vert_masked_rescaled4lr1-128/dmtet_mesh/mesh.mtl",
     "lock_pos": false
 }
