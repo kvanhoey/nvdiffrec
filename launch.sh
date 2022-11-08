@@ -27,16 +27,16 @@
 #python train.py --config configs/our_statue_vert_stage2lr1.json
 #python train.py --config configs/our_statue_vert_stage2lr2.json
 
-#python train.py --config configs/our_statue_vert_resol4-uvcyril_vargeom.json
 #python train.py --config configs/our_statue_vert_resol4-uvcyril_vargeom-lr0.json
-#python train.py --config configs/our_statue_vert_resol4-uvcyril_vargeom-lr2.json
+#python train.py --config configs/our_statue_vert_resol4-uvcyril_vargeom-lr1.json
+#python train.py --config configs/our_statue_vert_resol4-uvcyril_vargeom.json
+python train.py --config configs/our_statue_vert_resol4-uvcyril_vargeom-lr3.json
 
 python train.py --config configs/our_statue_vert_resol4-uvcyril_fixgeom.json
 python train.py --config configs/our_statue_vert_resol4-uvcyril_fixgeomnorm.json
 
-
-#python train.py --config configs/our_statue_vert_resol4-uvpenelope_vargeom.json
+python train.py --config configs/our_statue_vert_resol4-uvpenelope_vargeom.json
 python train.py --config configs/our_statue_vert_resol4-uvpenelope_fixgeom.json
 python train.py --config configs/our_statue_vert_resol4-uvpenelope_fixgeomnorm.json
 
-#python train.py --config configs/our_statue_vert_resol4-256.json
+python train.py --config configs/our_statue_vert_resol4-256.json

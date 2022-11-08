@@ -7,7 +7,7 @@
     "texture_res": [ 2048, 2048 ],
     "train_res": [1422, 915],
     "batch": 3,
-    "learning_rate": [0.01, 0.01],
+    "learning_rate": [0.01, 0.005],
     "kd_min" : [0.03, 0.03, 0.03],
     "kd_max" : [0.8, 0.8, 0.8],
     "ks_min" : [0, 0.08, 0],

@@ -25,7 +25,7 @@ import sys
 import numpy as np
 import json
 import math
-import cv2
+#import cv2
 import subprocess
 import struct
 import collections
