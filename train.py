@@ -493,12 +493,12 @@ def optimize_mesh(
             print("iter=%5d, img_loss=%.6f, reg_loss=%.6f, lr=%.5f, time=%.1f ms, rem=%s" % 
                 (it, img_loss_avg, reg_loss_avg, optimizer.param_groups[0]['lr'], iter_dur_avg*1000, util.time_to_text(remaining_time)))
 
-            writer.add_scalar('LR/stage{}_mat'.format(pass_idx+1),  optimizer.param_groups[0]['lr'], it)
+            writer.add_scalar('Stage{}/LR/mat'.format(pass_idx+1),  optimizer.param_groups[0]['lr'], it)
             if optimize_geometry:
-                writer.add_scalar(  'LR/stage{}_mesh'.format(pass_idx+1),               optimizer_mesh.param_groups[0]['lr'],   it)
-            writer.add_scalar(      'Loss/stage{}_img_loss'.format(pass_idx+1),         img_loss_avg,                           it)
-            writer.add_scalar(      'Loss/stage{}_reg_loss_avg'.format(pass_idx+1),     reg_loss_avg,                           it)
-            writer.add_scalar(      'Loss/stage{}_reg_loss_geom_avg'.format(pass_idx+1),reg_loss_geom_avg,                      it)
+                writer.add_scalar(  'Stage{}/LR/mesh'.format(pass_idx+1),               optimizer_mesh.param_groups[0]['lr'],   it)
+            writer.add_scalar(      'Stage{}/Loss/img_loss'.format(pass_idx+1),         img_loss_avg,                           it)
+            writer.add_scalar(      'Stage{}/Loss/reg_loss_avg'.format(pass_idx+1),     reg_loss_avg,                           it)
+            writer.add_scalar(      'Stage{}/Loss/reg_loss_geom_avg'.format(pass_idx+1),reg_loss_geom_avg,                      it)
             
 
     logfile.close()

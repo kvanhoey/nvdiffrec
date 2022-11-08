@@ -233,7 +233,7 @@ class DMTetGeometry(torch.nn.Module):
         img_loss = img_loss + loss_fn(buffers['shaded'][..., 0:3] * color_ref[..., 3:], color_ref[..., 0:3] * color_ref[..., 3:])
 
         # SDF regularizer
-        sdf_weight = self.FLAGS.sdf_regularizer - (self.FLAGS.sdf_regularizer - 0.01)*min(1.0, 4.0 * t_iter)
+        sdf_weight = self.FLAGS.sdf_regularizer - (self.FLAGS.sdf_regularizer - 0.01)*min(1.0, 4.0 * t_iter) if self.FLAGS.sdf_regularizer < 0.01 else 0
         reg_loss_geom = sdf_reg_loss(self.sdf, self.all_edges).mean()
         reg_loss = reg_loss_geom * sdf_weight # Dropoff to 0.01
 
