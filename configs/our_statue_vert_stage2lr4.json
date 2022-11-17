@@ -16,7 +16,7 @@
     "camera_space_light" : false,
     "background" : "white",
     "display" : [{"bsdf":"kd"}, {"bsdf":"ks"}, {"bsdf" : "normal"}],
-    "out_dir": "statue_vert_masked_stage2-lr2",
+    "out_dir": "statue_vert_masked_stage2-lr4",
     "validate": false,
     "base_mesh": "out/statue_vert_masked_rescaled4lr1-128/dmtet_mesh/mesh.obj",
     "mtl_override": "out/statue_vert_masked_rescaled4lr1-128/dmtet_mesh/mesh.mtl",
